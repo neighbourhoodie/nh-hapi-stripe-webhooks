@@ -1,0 +1,19 @@
+{
+  "name": "nh-hapi-stripe-webhooks",
+  "version": "1.0.0",
+  "description": "A stripe webhooks endpoint",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/neighbourhoodie/nh-hapi-stripe-webhooks.git"
+  },
+  "author": "The Neighbourhoodie Software GmbH",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/neighbourhoodie/nh-hapi-stripe-webhooks/issues"
+  },
+  "homepage": "https://github.com/neighbourhoodie/nh-hapi-stripe-webhooks#readme"
+}
