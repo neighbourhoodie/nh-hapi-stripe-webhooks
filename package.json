@@ -15,5 +15,11 @@
   "bugs": {
     "url": "https://github.com/neighbourhoodie/nh-hapi-stripe-webhooks/issues"
   },
-  "homepage": "https://github.com/neighbourhoodie/nh-hapi-stripe-webhooks#readme"
+  "homepage": "https://github.com/neighbourhoodie/nh-hapi-stripe-webhooks#readme",
+  "devDependencies": {
+    "standard": "^13.1.0"
+  },
+  "dependencies": {
+    "@hapi/hapi": "^18.3.1"
+  }
 }
