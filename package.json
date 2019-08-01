@@ -1,5 +1,5 @@
 {
-  "name": "nh-hapi-stripe-webhooks",
+  "name": "@neighbourhoodie/nh-hapi-stripe-webhooks",
   "version": "1.0.0",
   "description": "A stripe webhooks endpoint",
   "main": "index.js",
