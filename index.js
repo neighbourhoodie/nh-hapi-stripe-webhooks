@@ -1,50 +1,37 @@
 'use strict'
-
-// const {
-//   createSubscription,
-//   updateSubscription,
-//   removeSubscription
-// } = require('lib/subscriptions')
-
-// const {
-//   createCustomer,
-//   updateCustomer,
-//   removeCustomer
-// } = require('lib/customers')
-
-// const webhookHandlers = {
-//   'payments.subscription.create': createSubscription,
-//   'payments.subscription.update': updateSubscription,
-//   'payments.subscription.remove': removeSubscription,
-//   'payments.customer.create': createCustomer,
-//   'payments.customer.update': updateCustomer,
-//   'payments.customer.remove': removeCustomer
-// }
-
 /*
 options: {
-  stripeSecret: 'i like broccoli',
-  observe: ['event1', 'event2']
+  stripeApiKey: 'i-like-broccoli',
+  stripeWebhookSecret: 'and-i-don`t-lie',
+  endpoint: 'webhook-endpoint-to-listen-on,
+  webhookHandlers: {
+    'event1': callBack,
+    'event2': callBack
+  }
 }
 */
 exports.plugin = {
   pkg: require('./package.json'),
   register: async function (server, options) {
-    console.log('### hello ###')
-    // await webhookHandlers
+    const stripe = require('stripe')(options.stripeApiKey)
+    // console.log('### stripe', stripe)
 
-    // var stripe = createStripeClient(options.stripeSecretKey)
+    const events = Object.keys(options.webhookHandlers)
+    console.log('### events', events)
+
     server.route({
-      config: {
-        id: 'stripe-webhooks',
-        handler: function (request, h) {
-          console.log('### options', options)
-          return options.name
-        }
-      },
       method: 'POST',
-      path: options.path
+      path: options.endpoint,
+      handler: function (request, h) {
+        const signature = request.headers['stripe-signature']
+        console.log('### options', request.payload)
+        const incomingEvent = stripe.webhooks.constructEvent(request.payload, signature, options.stripeWebhookSecret)
+        console.log('### incomingEvent', incomingEvent)
+        if (events.includes(incomingEvent.type)) {
+          console.log('### events[incomingEvent]', events[incomingEvent.type])
+          return events[incomingEvent.type]
+        }
+      }
     })
-    // return next()
   }
 }
