@@ -1,4 +1,5 @@
 'use strict'
+const stripeClient = require('stripe')
 /*
 options: {
   stripeApiKey: 'i-like-broccoli',
@@ -13,23 +14,44 @@ options: {
 exports.plugin = {
   pkg: require('./package.json'),
   register: async function (server, options) {
-    const stripe = require('stripe')(options.stripeApiKey)
-    // console.log('### stripe', stripe)
+    const stripe = stripeClient(options.stripeApiKey)
+    const stripeWebhookSecret = options.stripeSecret
 
     const events = Object.keys(options.webhookHandlers)
-    console.log('### events', events)
+    // TODO Add endpoints with the API
+    // var stripe = require("stripe")("pk_test_YYRzw2aYYExcOmSFpoHvTwLU0045dwEqjb")
+    // const endpoint = stripe.webhookEndpoints.create({
+    //   url: options.endpoint,
+    //   enabled_events: events
+    // }, function(err, webhookEndpoint) {
+    //   // asynchronously called
+    // })
 
     server.route({
       method: 'POST',
       path: options.endpoint,
+      config: {
+        auth: false
+      },
       handler: function (request, h) {
-        const signature = request.headers['stripe-signature']
-        console.log('### options', request.payload)
-        const incomingEvent = stripe.webhooks.constructEvent(request.payload, signature, options.stripeWebhookSecret)
-        console.log('### incomingEvent', incomingEvent)
+        // const signature = request.headers['stripe-signature']
+        const payloadString = JSON.stringify(request.payload, null, 2)
+
+        const header = stripe.webhooks.generateTestHeaderString({
+          payload: payloadString,
+          secret: stripeWebhookSecret
+        })
+
+        let incomingEvent
+        try {
+          incomingEvent = stripe.webhooks.constructEvent(payloadString, header, stripeWebhookSecret)
+          // incomingEvent = stripe.webhooks.constructEvent(request.payload, signature, stripeWebhookSecret)
+        } catch (error) {
+          return h.response(`Webhook Error: ${error.message}`).code(400)
+        }
+
         if (events.includes(incomingEvent.type)) {
-          console.log('### events[incomingEvent]', events[incomingEvent.type])
-          return events[incomingEvent.type]
+          return incomingEvent.type
         }
       }
     })
