@@ -20,6 +20,7 @@
     "standard": "^13.1.0"
   },
   "dependencies": {
+    "@hapi/joi": "^15.1.0",
     "stripe": "^7.5.3"
   }
 }

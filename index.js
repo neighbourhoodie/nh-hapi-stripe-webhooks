@@ -1,5 +1,9 @@
 'use strict'
+
 const stripeClient = require('stripe')
+const Joi = require('@hapi/joi')
+
+const { optionsSchema } = require('./lib/validation')
 /*
 options: {
   stripeApiKey: 'i-like-broccoli',
@@ -15,8 +19,13 @@ options: {
 exports.plugin = {
   pkg: require('./package.json'),
   register: async function (server, options) {
+    const { error } = Joi.validate(options, optionsSchema, { abortEarly: true })
+    if (error) {
+      throw new Error(`Options validation error: ${error}`)
+    }
+
     const stripe = stripeClient(options.stripeApiKey)
-    const stripeWebhookSecret = options.stripeSecret
+    const stripeWebhookSecret = options.stripeWebhookSecret
     const webhookHandlers = options.webhookHandlers
     const events = Object.keys(webhookHandlers)
 
