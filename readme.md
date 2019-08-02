@@ -19,7 +19,8 @@ server.register({
     webhookHandlers: {
       'stripe.event': callBack()
     },
-    auth: { strategy: 'session', scope: ['ADMIN'] } // optional, default: false
+    auth: { strategy: 'session', scope: ['ADMIN'] } // optional, default: false,
+    NODE_ENV: 'development' // optional
   }
 })
 ```

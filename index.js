@@ -27,6 +27,7 @@ exports.plugin = {
     const stripe = stripeClient(options.stripeApiKey)
     const stripeWebhookSecret = options.stripeWebhookSecret
     const webhookHandlers = options.webhookHandlers
+    const NODE_ENV = options.NODE_ENV
     const events = Object.keys(webhookHandlers)
 
     server.route({
@@ -38,17 +39,17 @@ exports.plugin = {
       handler: function (request, h) {
         let incomingEvent
         try {
-          // if (process.NODE_ENV === 'develop' || process.NODE_ENV === 'test') {
-          const payloadString = JSON.stringify(request.payload, null, 2)
-          const header = stripe.webhooks.generateTestHeaderString({
-            payload: payloadString,
-            secret: stripeWebhookSecret
-          })
-          incomingEvent = stripe.webhooks.constructEvent(payloadString, header, stripeWebhookSecret)
-          // } else {
-          //   const signature = request.headers['stripe-signature']
-          //   incomingEvent = stripe.webhooks.constructEvent(request.payload, signature, stripeWebhookSecret)
-          // }
+          if (NODE_ENV === 'development' || NODE_ENV === 'test') {
+            const payloadString = JSON.stringify(request.payload, null, 2)
+            const header = stripe.webhooks.generateTestHeaderString({
+              payload: payloadString,
+              secret: stripeWebhookSecret
+            })
+            incomingEvent = stripe.webhooks.constructEvent(payloadString, header, stripeWebhookSecret)
+          } else {
+            const signature = request.headers['stripe-signature']
+            incomingEvent = stripe.webhooks.constructEvent(request.payload, signature, stripeWebhookSecret)
+          }
         } catch (error) {
           return h.response(`Webhook Error: ${error.message}`).code(400)
         }
