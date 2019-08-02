@@ -18,7 +18,8 @@ server.register({
     endpoint: '/webhook',
     webhookHandlers: {
       'stripe.event': callBack()
-    }
+    },
+    auth: { strategy: 'session', scope: ['ADMIN'] } // optional, default: false
   }
 })
 ```
