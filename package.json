@@ -4,7 +4,8 @@
   "description": "A stripe webhooks endpoint",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "NODE_ENV=test jest",
+    "pretest": "standard"
   },
   "repository": {
     "type": "git",
@@ -17,10 +18,16 @@
   },
   "homepage": "https://github.com/neighbourhoodie/nh-hapi-stripe-webhooks#readme",
   "devDependencies": {
+    "jest": "^24.8.0",
     "standard": "^13.1.0"
   },
   "dependencies": {
     "@hapi/joi": "^15.1.0",
     "stripe": "^7.5.3"
+  },
+  "standard": {
+    "env": {
+      "jest": true
+    }
   }
 }
