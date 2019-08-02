@@ -8,7 +8,7 @@ const { optionsSchema } = require('./lib/validation')
 options: {
   stripeApiKey: 'i-like-broccoli',
   stripeWebhookSecret: 'and-i-don`t-lie',
-  endpoint: 'webhook-endpoint-to-listen-on,
+  endpoint: 'webhook-endpoint-to-listen-on',
   webhookHandlers: {
     'event1': callBack,
     'event2': callBack
@@ -57,7 +57,6 @@ exports.plugin = {
         if (!events.includes(incomingEvent.type)) {
           return h.response(`Unrecognized Event: ${incomingEvent.type}`).code(400)
         } else {
-          console.log('###  webhookHandlers[incomingEvent.type]', webhookHandlers[incomingEvent.type])
           return webhookHandlers[incomingEvent.type]
         }
       }
