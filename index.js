@@ -45,7 +45,12 @@ exports.plugin = {
       handler: function (request, h) {
         let incomingEvent
         try {
-          incomingEvent = createStripeEvent({ payload: request.payload, stripeApiKey, stripeWebhookSecret, headers: request.headers })
+          incomingEvent = createStripeEvent({
+            payload: request.payload,
+            stripeApiKey,
+            stripeWebhookSecret,
+            headers: request.headers
+          })
         } catch (error) {
           return h.response(`Webhook Error: ${error.message}`).code(400)
         }
@@ -53,6 +58,7 @@ exports.plugin = {
         if (!events.includes(incomingEvent.type)) {
           return h.response(`Unrecognized Event: ${incomingEvent.type}`).code(400)
         } else {
+          console.log('### webhookHandlers[incomingEvent.type]', webhookHandlers[incomingEvent.type])
           return h.response(webhookHandlers[incomingEvent.type]).code(200)
         }
       }
