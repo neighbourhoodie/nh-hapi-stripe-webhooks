@@ -17,18 +17,10 @@ options: {
 }
 */
 
-const createStripeEvent = ({ payload, stripe, stripeWebhookSecret, headers }) => {
-  if (process.env.NODE_ENV === 'test') {
-    const payloadString = JSON.stringify(payload, null, 2)
-    const header = stripe.webhooks.generateTestHeaderString({
-      payload: payloadString,
-      secret: stripeWebhookSecret
-    })
-    return stripe.webhooks.constructEvent(payloadString, header, stripeWebhookSecret)
-  } else {
-    const signature = headers['stripe-signature']
-    return stripe.webhooks.constructEvent(payload, signature, stripeWebhookSecret)
-  }
+const createStripeEvent = ({ payload, stripeApiKey, stripeWebhookSecret, headers }) => {
+  const stripe = stripeClient(stripeApiKey)
+  const signature = headers['stripe-signature']
+  return stripe.webhooks.constructEvent(payload, signature, stripeWebhookSecret)
 }
 
 exports.plugin = {
@@ -39,8 +31,8 @@ exports.plugin = {
       throw new Error(`Options validation error: ${error}`)
     }
 
-    const stripe = stripeClient(options.stripeApiKey)
     const stripeWebhookSecret = options.stripeWebhookSecret
+    const stripeApiKey = options.stripeApiKey
     const webhookHandlers = options.webhookHandlers
     const events = Object.keys(webhookHandlers)
 
@@ -53,7 +45,7 @@ exports.plugin = {
       handler: function (request, h) {
         let incomingEvent
         try {
-          incomingEvent = createStripeEvent({ payload: request.payload, stripe, stripeWebhookSecret, headers: request.headers })
+          incomingEvent = createStripeEvent({ payload: request.payload, stripeApiKey, stripeWebhookSecret, headers: request.headers })
         } catch (error) {
           return h.response(`Webhook Error: ${error.message}`).code(400)
         }
@@ -61,7 +53,6 @@ exports.plugin = {
         if (!events.includes(incomingEvent.type)) {
           return h.response(`Unrecognized Event: ${incomingEvent.type}`).code(400)
         } else {
-          console.log('### webhookHandlers[incomingEvent.type]', webhookHandlers[incomingEvent.type])
           return h.response(webhookHandlers[incomingEvent.type]).code(200)
         }
       }

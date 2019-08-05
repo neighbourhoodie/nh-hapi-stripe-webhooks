@@ -1,5 +1,22 @@
 'use strict'
-const stripe = require('stripe')
+
+// mock signed stripe event
+jest.mock('stripe', () => {
+  return jest.fn().mockImplementation(() => {
+    return {
+      webhooks: {
+        constructEvent: jest.fn().mockReturnValue({
+          id: 'evt_test_webhook',
+          type: 'customer.created',
+          object: 'event'
+        }),
+        DEFAULT_TOLERANCE: 300,
+        generateTestHeaderString: jest.fn(),
+        signature: {}
+      }
+    }
+  })
+})
 const Hapi = require('@hapi/hapi')
 
 const nhHapiStripe = require('..')
@@ -20,7 +37,6 @@ describe('index', () => {
           endpoint: '/nh-stripe-webhook',
           webhookHandlers: {
             'customer.created': () => { console.log('customer created') },
-            'customer.updated': () => { console.log('customer updated') },
             'customer.deleted': () => { console.log('customer deleted') }
           }
         }
@@ -36,7 +52,6 @@ describe('index', () => {
           endpoint: '/nh-stripe-webhook',
           webhookHandlers: {
             'customer.created': () => { console.log('customer created') },
-            'customer.updated': () => { console.log('customer updated') },
             'customer.deleted': () => { console.log('customer deleted') }
           }
         }
@@ -51,7 +66,6 @@ describe('index', () => {
           stripeWebhookSecret: 'and_i_dont_lie',
           webhookHandlers: {
             'customer.created': () => { console.log('customer created') },
-            'customer.updated': () => { console.log('customer updated') },
             'customer.deleted': () => { console.log('customer deleted') }
           }
         }
@@ -85,7 +99,6 @@ describe('index', () => {
   })
 
   test('should handle incoming event', async () => {
-    // expect.assertions(2)
     await this.server.register({
       plugin: nhHapiStripe,
       options: {
@@ -106,24 +119,11 @@ describe('index', () => {
       object: 'event'
     }
 
-    // mock signed stripe event
-    const payloadString = JSON.stringify(stripePayload, null, 2)
-    const secret = 'whsec_test_secret'
-    const header = stripe.webhooks.generateTestHeaderString({
-      payload: payloadString,
-      secret
-    })
-    const event = stripe.webhooks.constructEvent(payloadString, header, secret)
-
-    expect(event.id).toEqual(stripePayload.id)
-    expect(event.type).toEqual(stripePayload.type)
-
     const { statusCode } = await this.server.inject({
       method: 'POST',
       url: '/nh-stripe-webhook',
-      payload: event
+      payload: stripePayload
     })
-    console.log('### result', statusCode)
     expect(statusCode).toBe(200)
   })
 })
