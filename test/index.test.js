@@ -100,8 +100,8 @@ describe('index', () => {
 
   describe('event handling', () => {
     test('should handle incoming event', async () => {
-      const customerCreated = jest.fn((event) => console.log('customer created'))
-      const customerDeleted = jest.fn((event) => console.log('customer deleted'))
+      const customerCreated = jest.fn((event) => event)
+      const customerDeleted = jest.fn((event) => event)
 
       await this.server.register({
         plugin: nhHapiStripe,
