@@ -13,15 +13,13 @@ npm install @neighbourhoodie/nh-hapi-stripe-webhooks
 server.register({
   register: plugin('@neighbourhoodie/nh-hapi-stripe-webhooks'),
   options: {
-    stripeApiKey: 'i-like-broccoli',
-    stripeWebhookSecret: 'and-i-don`t-lie',
+    stripeApiKey: 'i_like_broccoli',
+    stripeWebhookSecret: 'and_i_dont_lie',
     endpoint: '/webhook',
     webhookHandlers: {
-      'stripe.event': callBack()
+      'stripe.event': callBack
     },
-    auth: { strategy: 'session', scope: ['ADMIN'] } // optional, default: false,
-    NODE_ENV: 'development' // optional
-  }
+    auth: { strategy: 'session', scope: ['ADMIN'] } // optional, default: false
 })
 ```
 
