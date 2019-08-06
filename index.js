@@ -58,8 +58,8 @@ exports.plugin = {
         if (!events.includes(incomingEvent.type)) {
           return h.response(`Unrecognized Event: ${incomingEvent.type}`).code(400)
         } else {
-          console.log('### webhookHandlers[incomingEvent.type]', webhookHandlers[incomingEvent.type])
-          return h.response(webhookHandlers[incomingEvent.type]).code(200)
+          const result = webhookHandlers[incomingEvent.type](incomingEvent)
+          return h.response(result).code(200)
         }
       }
     })
