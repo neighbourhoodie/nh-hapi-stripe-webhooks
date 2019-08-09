@@ -40,7 +40,10 @@ exports.plugin = {
       method: 'POST',
       path: options.endpoint,
       config: {
-        auth: options.auth || false
+        auth: options.auth || false,
+        payload: {
+          parse: false
+        }
       },
       handler: function (request, h) {
         let incomingEvent
