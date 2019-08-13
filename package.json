@@ -1,6 +1,6 @@
 {
   "name": "@neighbourhoodie/nh-hapi-stripe-webhooks",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "A stripe webhooks endpoint",
   "main": "index.js",
   "scripts": {
