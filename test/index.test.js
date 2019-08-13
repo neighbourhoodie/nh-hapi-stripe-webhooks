@@ -134,6 +134,38 @@ describe('index', () => {
       expect(customerCreated).toHaveBeenCalledWith(stripePayload)
     })
 
+    test('should handle incoming event and asynchronous webhook handler', async () => {
+      const asyncCustomerCreated = jest.fn(async (event) => event)
+
+      await this.server.register({
+        plugin: nhHapiStripe,
+        options: {
+          stripeApiKey: 'i_like_broccoli',
+          stripeWebhookSecret: 'and_i_dont_lie',
+          endpoint: '/nh-stripe-webhook',
+          webhookHandlers: {
+            'customer.created': asyncCustomerCreated
+          }
+        }
+      })
+
+      const stripePayload = {
+        id: 'evt_test_webhook',
+        type: 'customer.created',
+        object: 'event'
+      }
+
+      const { statusCode } = await this.server.inject({
+        method: 'POST',
+        url: '/nh-stripe-webhook',
+        payload: stripePayload
+      })
+
+      expect(statusCode).toBe(200)
+      expect(asyncCustomerCreated).toHaveBeenCalled()
+      expect(asyncCustomerCreated).toHaveBeenCalledWith(stripePayload)
+    })
+
     test('should handle throwing callback', async () => {
       const failingCustomerCreated = jest.fn((event) => { throw new Error('Implementation error') })
       const failingCustomerDeleted = jest.fn((event) => { throw new Error('Implementation error') })

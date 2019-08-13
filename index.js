@@ -17,7 +17,7 @@ options: {
 }
 */
 
-const createStripeEvent = async ({ payload, stripeApiKey, stripeWebhookSecret, headers }) => {
+const createStripeEvent = ({ payload, stripeApiKey, stripeWebhookSecret, headers }) => {
   const stripe = stripeClient(stripeApiKey)
   const signature = headers['stripe-signature']
   return stripe.webhooks.constructEvent(payload, signature, stripeWebhookSecret)
@@ -48,7 +48,7 @@ exports.plugin = {
       handler: async (request, h) => {
         let incomingEvent
         try {
-          incomingEvent = await createStripeEvent({
+          incomingEvent = createStripeEvent({
             payload: request.payload,
             stripeApiKey,
             stripeWebhookSecret,
@@ -61,7 +61,7 @@ exports.plugin = {
         if (!events.includes(incomingEvent.type)) {
           return h.response(`Unrecognized Event: ${incomingEvent.type}`).code(400)
         } else {
-          const result = webhookHandlers[incomingEvent.type](incomingEvent)
+          const result = await webhookHandlers[incomingEvent.type](incomingEvent)
           return h.response(result).code(200)
         }
       }
