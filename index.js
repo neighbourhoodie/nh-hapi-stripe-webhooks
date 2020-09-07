@@ -61,8 +61,17 @@ exports.plugin = {
         if (!events.includes(incomingEvent.type)) {
           return h.response(`Unrecognized Event: ${incomingEvent.type}`).code(400)
         } else {
-          const result = await webhookHandlers[incomingEvent.type](incomingEvent)
-          return h.response(result).code(200)
+          try {
+            const result = await webhookHandlers[incomingEvent.type](incomingEvent)
+            return h.response(result).code(200)
+          } catch (error) {
+            request.log('error', {
+              component: 'nh-hapi-stripe-webhooks',
+              message: `Could not execute webhook handler for '${incomingEvent.type}'`,
+              error
+            })
+            throw error
+          }
         }
       }
     })
